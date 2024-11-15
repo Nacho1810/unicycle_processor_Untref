@@ -23,7 +23,7 @@ architecture processorTB_arch  of ProcessorTB is
 	   I_DataIn    : in  std_logic_vector(31 downto 0);
 	  
 	-- Data memory
-	   D_Rdy     : in std_logic;
+	   --D_Rdy     : in std_logic;
 	   D_Addr      : out std_logic_vector(31 downto 0);
 	   D_RdStb     : out std_logic;
 	   D_WrStb   : out std_logic;
@@ -96,7 +96,7 @@ begin
 	      I_DataOut       => I_DataOut,
 	      I_DataIn        => I_DataIn,
 	      -- Data memory
-	      D_Rdy           => D_Rdy,
+	      --D_Rdy           => D_Rdy,
 	      D_Addr          => D_Addr,
   	      D_RdStb         => D_RdStb,
 	      D_WrStb         => D_WrStb,
