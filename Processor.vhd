@@ -121,7 +121,7 @@ begin
 
 -- Control de la ALU
     
-    ALU_oper_b <= reg1_rd;
+    ALU_oper_b <= data1_reg;
     -- determina salto incondicional
     
 
@@ -148,9 +148,9 @@ begin
 --    D_Addr <= ; resultado de la ALU
     D_Addr <= ALU_result;
 --    D_RdStb <= MemRead;
-    D_RdStb <= MemRead  
+    D_RdStb <= MemRead;
 --    D_WrStb <= MemWrite;
-    D_WrStb <= MemWrite
+    D_WrStb <= MemWrite;
 --    D_DataOut <= ALU_result ;
     D_DataOut <= ALU_result;
 
