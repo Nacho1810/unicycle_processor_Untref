@@ -21,6 +21,7 @@ port(
 	I_DataIn    : in  std_logic_vector(31 downto 0);
 	-- Data memory
 
+    
 	D_Addr      : out std_logic_vector(31 downto 0);
 	D_RdStb     : out std_logic;
 	D_WrStb     : out std_logic;
@@ -121,7 +122,7 @@ begin
 
 -- Control de la ALU
     
-    ALU_oper_b <= data1_reg;
+    ALU_oper_a <= data1_reg;
     -- determina salto incondicional
     
 
@@ -139,8 +140,33 @@ begin
 
  
 -- Unidad de Control
-  
-  
+--signal RegWrite, RegDst, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, Jump: std_logic;
+--signal ALUOp: std_logic_vector(1 downto 0); 
+
+    if (I_DataIn(31 downto 26) = "000000") or (I_DataIn(31 downto 26) = "100011") then --Inst type R or lw
+        RegWrite <= '1';
+    else
+        RegWrite <= '0';
+    end if;
+    
+    if 
+
+    case I_DataIn(31 downto 26) is
+        when "000000" =>
+            RegWrite <= '1'; 
+            RegDst <= '1';
+            Branch, 
+            MemRead, 
+            MemtoReg <= '0';
+            MemWrite, 
+            ALUSrc <= '0';
+            Jump
+    
+        when others =>
+            
+    
+    end case;
+
     -- mux que maneja escritura en banco de registros
     data_w_reg <= D_Datain when MemtoReg = '1' else ALU_result;
 
@@ -152,6 +178,6 @@ begin
 --    D_WrStb <= MemWrite;
     D_WrStb <= MemWrite;
 --    D_DataOut <= ALU_result ;
-    D_DataOut <= ALU_result;
+    D_DataOut <= data2_reg;
 
 end processor_arch;
