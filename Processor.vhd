@@ -20,8 +20,6 @@ port(
 	I_DataOut   : out std_logic_vector(31 downto 0);
 	I_DataIn    : in  std_logic_vector(31 downto 0);
 	-- Data memory
-
-    
 	D_Addr      : out std_logic_vector(31 downto 0);
 	D_RdStb     : out std_logic;
 	D_WrStb     : out std_logic;
@@ -110,8 +108,11 @@ begin
 
     
 -- mux correspondiente a segundo operando de ALU
+    ALU_oper_a <= data1_reg;
     ALU_oper_b <= inm_extended when ALUSrc = '1' else data2_reg; -- agregue esto
-            
+
+
+    
 -- Instanciaci�n de ALU
     E_ALU: ALU port map(
             a => ALU_oper_a, 
@@ -120,29 +121,40 @@ begin
             zero => ALU_zero, 
             result => ALU_result);
 
--- Control de la ALU
-    
-    ALU_oper_a <= data1_reg;
-    -- determina salto incondicional
-    
+-- determina salto incondicional
 
-    -- determina salto condicional por iguales
+-- determina salto condicional por iguales
 
-    
-    -- incremento de PC
-    
-    -- mux que maneja carga de PC
-    
-    
+-- incremento de PC
+
+-- mux que maneja carga de PC
+
+
+-- ALU CONTROL
+    case ALUOp is
+        -- Tipo R 
+        when "10" =>
+            case I_DataIn(5 downto 0) is
+                when "100000" => ALU_control <= "010"; -- add
+                when "100010" => ALU_control <= "110"; -- subtract
+                when "100100" => ALU_control <= "000"; -- and
+                when "100101" => ALU_control <= "001"; -- or
+                when "101010" => ALU_control <= "111"; -- set on less than
+            end case;
+        -- BEQ 
+        when "01" =>
+            ALU_control <= "110"; -- subtract
+        -- LW o SW 
+        when "00" =>
+            ALU_control <= "010"; -- add
+    end case;
+
     
 -- Contador de programa
     reg_pc <= next_reg_pc;
 
  
 -- Unidad de Control
---signal RegWrite, RegDst, Branch, MemRead, MemtoReg, MemWrite, ALUSrc, Jump: std_logic;
---signal ALUOp: std_logic_vector(1 downto 0); 
-
     if (I_DataIn(31 downto 26) = "000000") or (I_DataIn(31 downto 26) = "100011") then --Inst type R or lw
         RegWrite <= '1';
     else
@@ -213,6 +225,15 @@ begin
             Jump <= '1';   
 
         when others =>
+            RegDst <= '0';
+            ALUSrc <= '0';
+            MemtoReg <= '0';
+            RegWrite <= '0';
+            MemRead <= '0'; 
+            MemWrite <= '0';
+            Branch <= '0';
+            ALUOp <= "00";
+            Jump <= '0'; 
     end case;
 
     -- mux que maneja escritura en banco de registros
