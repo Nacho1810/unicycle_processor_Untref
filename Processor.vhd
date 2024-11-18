@@ -149,22 +149,70 @@ begin
         RegWrite <= '0';
     end if;
     
-    if 
 
     case I_DataIn(31 downto 26) is
+
+        -- Tipo R
         when "000000" =>
             RegWrite <= '1'; 
             RegDst <= '1';
-            Branch, 
-            MemRead, 
+            Branch <= '0'; 
+            MemRead <= '0'; 
             MemtoReg <= '0';
-            MemWrite, 
+            MemWrite <= '0'; 
             ALUSrc <= '0';
-            Jump
-    
+            Jump <= '0';
+            ALUOp <= "10";
+        
+        -- LW
+        when "100011" =>
+            RegDst <= '0';
+            ALUSrc <= '1';
+            MemtoReg <= '1';
+            RegWrite <= '1';
+            MemRead <= '1'; 
+            MemWrite <= '0';
+            Branch <= '0';
+            ALUOp <= "00";
+            Jump <= '0';
+
+        -- SW
+        when "101011" =>
+            RegDst <= 'X';
+            ALUSrc <= '1';
+            MemtoReg <= 'X';
+            RegWrite <= '0';
+            MemRead <= '0'; 
+            MemWrite <= '1';
+            Branch <= '0';
+            ALUOp <= "00";
+            Jump <= '0';       
+
+        -- BEQ
+        when "000100" =>
+            RegDst <= 'X';
+            ALUSrc <= '0';
+            MemtoReg <= 'X';
+            RegWrite <= '0';
+            MemRead <= '0'; 
+            MemWrite <= '0';
+            Branch <= '1';
+            ALUOp <= "01";
+            Jump <= '0';   
+ 
+        -- JUMP
+        when "000010" =>
+            RegDst <= 'X';
+            ALUSrc <= 'X';
+            MemtoReg <= 'X';
+            RegWrite <= '0';
+            MemRead <= '0'; 
+            MemWrite <= '0';
+            Branch <= '0';
+            ALUOp <= "XX";
+            Jump <= '1';   
+
         when others =>
-            
-    
     end case;
 
     -- mux que maneja escritura en banco de registros
