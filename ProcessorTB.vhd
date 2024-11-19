@@ -83,7 +83,7 @@ component DataMemory
 	constant tdelay    : time := 120 ns; -- antes 150, sino no enta direccion 0
 
 begin
-	  
+
 	-- Unit Under Test port map
 	UUT : Processor
 		port map (

@@ -79,9 +79,9 @@ architecture processor_arch of Processor is
     
 
 begin 	
-
+    
 -- Interfaz con memoria de Instrucciones 
-    I_Addr <= next_reg_pc; -- el PC ? <--- agregue esto
+    I_Addr <= reg_pc; -- el PC ? <--- agregue esto
     I_RdStb <= '1';
     I_WrStb <= '0';
     I_DataOut <= (others => '0'); -- dato que nunca se carga en memoria de programa
@@ -100,18 +100,16 @@ begin
 			data1_rd => data1_reg,
 			data2_rd => data2_reg); 
 			
-            
+         
 -- mux de para destino de escritura en banco de registros
     reg_wr <= I_DataIn(15 downto 11) when RegDst = '1' else I_DataIn(20 downto 16); -- Instruccion Tipo R       agregue esto  
 
 -- extensi�n de signo del operando inmediato de la instrucci�n
-
+    inm_extended <= x"0000" & I_DataIn(15 downto 0);
     
 -- mux correspondiente a segundo operando de ALU
     ALU_oper_a <= data1_reg;
     ALU_oper_b <= inm_extended when ALUSrc = '1' else data2_reg; -- agregue esto
-
-
     
 -- Instanciaci�n de ALU
     E_ALU: ALU port map(
@@ -122,13 +120,22 @@ begin
             result => ALU_result);
 
 -- determina salto incondicional
+    pc_jump <= I_DataIn(31 downto 28) & ((I_DataIn(25 downto 0)) & "00");
 
 -- determina salto condicional por iguales
+    pc_branch <= (inm_extended sll 2) + pc_4;
 
 -- incremento de PC
+    pc_4 <= (reg_pc) + 4;
 
 -- mux que maneja carga de PC
 
+    if Jump = '1' then
+        next_reg_pc <= pc_jump;
+    elsif ALU_zero = '1' and Branch = '1' then
+        next_reg_pc <= pc_branch;
+    else 
+        next_reg_pc <= pc_4;
 
 -- ALU CONTROL
     case ALUOp is
@@ -151,17 +158,10 @@ begin
 
     
 -- Contador de programa
-    reg_pc <= next_reg_pc;
+    if(rising_edge(clk)) then
+        reg_pc <= next_reg_pc;
 
- 
 -- Unidad de Control
-    if (I_DataIn(31 downto 26) = "000000") or (I_DataIn(31 downto 26) = "100011") then --Inst type R or lw
-        RegWrite <= '1';
-    else
-        RegWrite <= '0';
-    end if;
-    
-
     case I_DataIn(31 downto 26) is
 
         -- Tipo R
