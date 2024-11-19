@@ -129,21 +129,17 @@ begin
     pc_4 <= (reg_pc) + 4;
 
 -- mux que maneja carga de PC 
-    next_reg_pc <= (others => '0') when Reset = '1' else
-                    pc_jump when Jump = '1' else
-                    pc_branch when ALU_zero = '1' and Branch = '1'
-                    else pc_4;
 process(clk,Reset)
 begin
-    -- if Reset = '1' then
-    -- next_reg_pc <= (others => '0')
-    -- elsif Jump = '1' then
-    --     next_reg_pc <= pc_jump;
-    -- elsif ALU_zero = '1' and Branch = '1' then
-    --     next_reg_pc <= pc_branch;
-    -- else 
-    --     next_reg_pc <= pc_4;
-    -- end if;
+    if Reset = '1' then
+    next_reg_pc <= (others => '0');
+    elsif Jump = '1' then
+        next_reg_pc <= pc_jump;
+    elsif ALU_zero = '1' and Branch = '1' then
+        next_reg_pc <= pc_branch;
+    else 
+        next_reg_pc <= pc_4;
+    end if;
     --Contador de programa
     if(rising_edge(Clk)) then
         reg_pc <= next_reg_pc;
