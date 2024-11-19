@@ -90,7 +90,7 @@ begin
 -- Instanciaci�n de banco de registros
     E_Regs:  Registers 
 	   Port map (
-			clk => clk, 
+			clk => Clk, 
 			reset => reset, 
 			wr => RegWrite,
 			reg1_rd => I_DataIn(25 downto 21), 
@@ -128,16 +128,31 @@ begin
 -- incremento de PC
     pc_4 <= (reg_pc) + 4;
 
--- mux que maneja carga de PC
-
-    if Jump = '1' then
-        next_reg_pc <= pc_jump;
-    elsif ALU_zero = '1' and Branch = '1' then
-        next_reg_pc <= pc_branch;
-    else 
-        next_reg_pc <= pc_4;
+-- mux que maneja carga de PC 
+    next_reg_pc <= (others => '0') when Reset = '1' else
+                    pc_jump when Jump = '1' else
+                    pc_branch when ALU_zero = '1' and Branch = '1'
+                    else pc_4;
+process(clk,Reset)
+begin
+    -- if Reset = '1' then
+    -- next_reg_pc <= (others => '0')
+    -- elsif Jump = '1' then
+    --     next_reg_pc <= pc_jump;
+    -- elsif ALU_zero = '1' and Branch = '1' then
+    --     next_reg_pc <= pc_branch;
+    -- else 
+    --     next_reg_pc <= pc_4;
+    -- end if;
+    --Contador de programa
+    if(rising_edge(Clk)) then
+        reg_pc <= next_reg_pc;
+    end if;
+end process;
 
 -- ALU CONTROL
+process(I_DataIn)
+begin
     case ALUOp is
         -- Tipo R 
         when "10" =>
@@ -147,6 +162,7 @@ begin
                 when "100100" => ALU_control <= "000"; -- and
                 when "100101" => ALU_control <= "001"; -- or
                 when "101010" => ALU_control <= "111"; -- set on less than
+                when others   => ALU_control <= "000"; -- Eda Playground nos pidio cubrir others
             end case;
         -- BEQ 
         when "01" =>
@@ -154,14 +170,17 @@ begin
         -- LW o SW 
         when "00" =>
             ALU_control <= "010"; -- add
+        when others =>
+            ALU_control <= "000"; -- Default
     end case;
+end process;
 
     
--- Contador de programa
-    if(rising_edge(clk)) then
-        reg_pc <= next_reg_pc;
 
 -- Unidad de Control
+
+process (I_DataIn)
+begin
     case I_DataIn(31 downto 26) is
 
         -- Tipo R
@@ -235,6 +254,7 @@ begin
             ALUOp <= "00";
             Jump <= '0'; 
     end case;
+end process;
 
     -- mux que maneja escritura en banco de registros
     data_w_reg <= D_Datain when MemtoReg = '1' else ALU_result;
